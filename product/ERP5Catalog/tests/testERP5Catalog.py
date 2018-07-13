@@ -2266,7 +2266,15 @@ VALUES
     sql_catalog.sql_catalog_role_keys = (
         'Assignee | %s.viewable_assignee_reference' % \
        local_roles_table,)
-
+    createZODBPythonScript(
+      self.portal.portal_skins.custom,
+      'ERP5Site_filterUserIdSet',
+      'group_id_list',
+      'actual_user_set = %r\n'
+      'return [x for x in group_id_list if x in actual_user_set]' % (
+        (user1, user2),
+      ),
+    )
     current_sql_search_tables = sql_catalog.sql_search_tables
     sql_catalog.sql_search_tables = sql_catalog.sql_search_tables + \
         [local_roles_table]
@@ -2315,6 +2323,7 @@ VALUES
       result = obj.portal_catalog(portal_type=portal_type, local_roles='Auditor')
       self.assertSameSet([obj2, ], [x.getObject() for x in result])
     finally:
+      self.portal.portal_skins.custom.manage_delObjects(ids=['ERP5Site_filterUserIdSet'])
       sql_catalog.sql_catalog_object_list = \
         current_sql_catalog_object_list
       sql_catalog.sql_clear_catalog = \
@@ -2432,7 +2441,14 @@ VALUES
     sql_catalog.sql_catalog_role_keys = (
         'Assignee | %s.viewable_assignee_reference' % \
        local_roles_table,)
-
+    createZODBPythonScript(
+      self.portal.portal_skins.custom,
+      'ERP5Site_filterUserIdSet',
+      'group_id_list',
+      'return [x for x in group_id_list if x == %r]' % (
+        user1,
+      ),
+    )
     current_sql_search_tables = sql_catalog.sql_search_tables
     sql_catalog.sql_search_tables = sql_catalog.sql_search_tables + \
         [local_roles_table]
@@ -2575,6 +2591,7 @@ VALUES
                                     **count_result_kw)))
 
     finally:
+      self.portal.portal_skins.custom.manage_delObjects(ids=['ERP5Site_filterUserIdSet'])
       sql_catalog.sql_catalog_object_list = \
         current_sql_catalog_object_list
       sql_catalog.sql_clear_catalog = \
@@ -2683,7 +2700,14 @@ VALUES
         'Owner | viewable_owner',
         'Assignee | %s.viewable_assignee_reference' % \
        local_roles_table,)
-
+    createZODBPythonScript(
+      self.portal.portal_skins.custom,
+      'ERP5Site_filterUserIdSet',
+      'group_id_list',
+      'return [x for x in group_id_list if x == %r]' % (
+        user1,
+      ),
+    )
     current_sql_search_tables = sql_catalog.sql_search_tables
     sql_catalog.sql_search_tables = sql_catalog.sql_search_tables + \
         [local_roles_table]
@@ -2818,6 +2842,7 @@ VALUES
                                     **count_result_kw)))
 
     finally:
+      self.portal.portal_skins.custom.manage_delObjects(ids=['ERP5Site_filterUserIdSet'])
       sql_catalog.sql_catalog_object_list = \
         current_sql_catalog_object_list
       sql_catalog.sql_clear_catalog = \
@@ -2928,6 +2953,14 @@ VALUES
 
       person = self.portal.person_module.newContent(portal_type='Person')
       user_id = person.Person_getUserId()
+      createZODBPythonScript(
+        self.portal.portal_skins.custom,
+        'ERP5Site_filterUserIdSet',
+        'group_id_list',
+        'return [x for x in group_id_list if x == %r]' % (
+          user_id,
+        ),
+      )
       person.manage_setLocalRoles(user_id, ['Assignee'])
 
       self.tic()
@@ -2943,6 +2976,7 @@ VALUES
       # check that user has optimised security declaration
       self.assertEqual(local_roles_table_result['viewable_assignee_reference'], user_id)
     finally:
+      self.portal.portal_skins.custom.manage_delObjects(ids=['ERP5Site_filterUserIdSet'])
       sql_catalog.sql_catalog_object_list = \
         current_sql_catalog_object_list
       sql_catalog.sql_clear_catalog = \
